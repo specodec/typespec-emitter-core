@@ -1107,7 +1107,7 @@ export const RESERVED_KEYWORDS = {
     "derives", "end", "with", "_",
   ]),
 
-  fsharp: new Set([
+   fsharp: new Set([
     "abstract", "and", "as", "assert", "base", "begin", "class",
     "default", "delegate", "do", "done", "downcast", "downto",
     "elif", "else", "end", "exception", "extern", "false", "finally",
@@ -1117,6 +1117,14 @@ export const RESERVED_KEYWORDS = {
     "or", "override", "private", "public", "rec", "return", "select",
     "static", "struct", "then", "to", "true", "try", "type", "upcast",
     "use", "val", "void", "when", "while", "with", "yield",
+  ]),
+
+  elixir: new Set([
+    "after", "and", "catch", "case", "cond", "def", "defp", "defmacro",
+    "defmodule", "defprotocol", "defimpl", "defstruct", "defexception",
+    "defdelegate", "defguard", "do", "else", "end", "false", "fn", "for",
+    "if", "import", "in", "nil", "not", "or", "raise", "rescue",
+    "require", "throw", "true", "try", "unless", "use", "when", "with",
   ]),
 };
 
@@ -1137,6 +1145,7 @@ export const ALL_LANGS: LangName[] = [
   "ruby",
   "scala",
   "fsharp",
+  "elixir",
 ];
 
 export const LANG_DISPLAY_NAMES: Record<LangName, string> = {
@@ -1154,6 +1163,7 @@ export const LANG_DISPLAY_NAMES: Record<LangName, string> = {
   ruby: "Ruby",
   scala: "Scala",
   fsharp: "F#",
+  elixir: "Elixir",
 };
 
 export function isReservedKeyword(name: string): boolean {
@@ -1197,7 +1207,7 @@ export function formatReservedError(fieldName: string, _modelName: string, reser
 
 /**
  * Checks all model field names across all services for reserved keywords.
- * Reports errors to program diagnostics if found and not ignoring.
+ * Reports errors (or warnings if ignoreReservedKeywords=true) to program diagnostics.
  * Returns true if execution should be aborted (errors found and not ignoring).
  */
 export function checkAndReportReservedKeywords(
@@ -1224,8 +1234,10 @@ export function checkAndReportReservedKeywords(
   }
 
   if (warnings.length > 0) {
+    for (const w of warnings) {
+      w.severity = ignoreReservedKeywords ? "warning" : "error";
+    }
     program.reportDiagnostics(warnings);
   }
-
-  return false; // safeFieldName handles escaping per language; never block
+  return !ignoreReservedKeywords && warnings.length > 0;
 }
