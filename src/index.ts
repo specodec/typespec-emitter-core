@@ -1207,7 +1207,7 @@ export function formatReservedError(fieldName: string, _modelName: string, reser
 
 /**
  * Checks all model field names across all services for reserved keywords.
- * Reports errors (or warnings if ignoreReservedKeywords=true) to program diagnostics.
+ * Reports errors (or warnings if _ignoreReservedKeywords=true) to program diagnostics.
  * Returns true if execution should be aborted (errors found and not ignoring).
  */
 export function checkAndReportReservedKeywords(
@@ -1235,9 +1235,9 @@ export function checkAndReportReservedKeywords(
 
   if (warnings.length > 0) {
     for (const w of warnings) {
-      w.severity = ignoreReservedKeywords ? "warning" : "error";
+      w.severity = _ignoreReservedKeywords ? "warning" : "error";
     }
     program.reportDiagnostics(warnings);
   }
-  return !ignoreReservedKeywords && warnings.length > 0;
+  return !_ignoreReservedKeywords && warnings.length > 0;
 }
